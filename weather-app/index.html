@@ -1,0 +1,112 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+</head>
+
+<body class="bg-black font-mono">
+    <div class="flex justify-center items-center h-screen bg-gray-900">
+        <div class="text-3xl text-center text-white font-bold absolute top-10">
+            <h1>weatherify.com</h1>
+        </div>
+
+        <div class="bg-gradient-to-r from-cyan-500 to-blue-500 rounded-lg shadow-lg p-6 w-[350px] md:w-[400px]">
+            <div class="flex p-3 justify-between items-center space-x-4">
+                <input id="cityInput" type="text" class="bg-white w-full text-sm p-3 rounded-xl outline-none shadow-md"
+                    placeholder="Enter city name" />
+                <button id="searchButton"
+                    class="bg-white text-black font-semibold cursor-pointer px-4 py-3 rounded-lg shadow-md hover:bg-gray-200">Search</button>
+            </div>
+
+            <div id="error" class="text-lg text-red-500 font-bold text-center hidden">
+                <p>Invalid City Name!</p>
+            </div>
+
+            <div class="hidden" id="weatherData">
+                <div class="flex justify-center mt-5">
+                    <div class="flex flex-col text-center text-white p-5">
+                        <img alt="" id="weatherIcon" class="w-20 mx-auto">
+                        <h1 id="temp" class="pb-3 font-bold text-3xl">--°</h1>
+                        <h2 id="cityName" class="text-xl">City</h2>
+                    </div>
+                </div>
+
+                <div class="flex flex-row justify-evenly text-white text-sm p-5">
+                    <div class="flex flex-col items-center">
+                        <img src="/images/wind.png" alt="Wind" class="w-10 h-10">
+                        <h1 class="mt-2">Wind</h1>
+                        <h2 id="windSpeed" class="mt-1">-- km/h</h2>
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <img src="/images/humidity.png" alt="Humidity" class="w-10 h-10">
+                        <h1 class="mt-2">Humidity</h1>
+                        <h2 id="humidity" class="mt-1">--%</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const apiKey = "b7aa38dda5d9700accc89b8a944dd4cc";
+        const apiUrl = "https://api.openweathermap.org/data/2.5/weather?units=metric&q="
+
+        const searchBox = document.getElementById("cityInput");
+        const weatherIcon = document.getElementById("weatherIcon");
+        const searchButton = document.getElementById("searchButton");
+
+
+        async function checkWeather(city) {
+            const response = await fetch(apiUrl + city + `&appid=${apiKey}`)
+
+            if (response.status == 404) {
+                document.getElementById("error").style.display = "block";
+                document.getElementById("weatherData").style.display = "none";
+            } else {
+                var data = await response.json();
+
+                console.log(data);
+
+                if (data.weather[0].main == "Clear") {
+                    weatherIcon.src = "./images/clear.png"
+                }
+                else if (data.weather[0].main == "Clouds") {
+                    weatherIcon.src = "./images/clouds.png"
+                }
+                else if (data.weather[0].main == "Drizzle") {
+                    weatherIcon.src = "./images/drizzle.png"
+                }
+                else if (data.weather[0].main == "Mist") {
+                    weatherIcon.src = "./images/mist.png"
+                }
+                else if (data.weather[0].main == "Rain") {
+                    weatherIcon.src = "./images/rain.png"
+                }
+                else if (data.weather[0].main == "Snow") {
+                    weatherIcon.src = "./images/snow.png"
+                }
+
+                document.getElementById("weatherData").style.display = "block";
+                document.getElementById("error").style.display = "none";
+
+                document.getElementById("cityName").innerHTML = data.name;
+                document.getElementById("temp").innerHTML = `${Math.round(data.main.temp)}°C`;
+                document.getElementById("windSpeed").innerHTML = `${Math.round(data.wind.speed)} km/hr`
+                document.getElementById("humidity").innerHTML = `${data.main.humidity} %`
+            }
+
+
+        }
+
+
+        searchButton.addEventListener("click", () => {
+            checkWeather(searchBox.value);
+        })
+
+    </script>
+</body>
+
+</html>
